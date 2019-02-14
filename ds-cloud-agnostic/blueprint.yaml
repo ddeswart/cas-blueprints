@@ -1,0 +1,47 @@
+name: Cloud Agnostic blueprint
+version: v2
+inputs:
+  size:
+    type: string
+    enum:
+      - small
+      - medium
+      - large
+    description: VM size
+    title: VM Size
+  os:
+    type: string
+    enum:
+      - Ubuntu
+      - CentOS
+    description: OS image
+    title: OS image
+  count:
+    type: integer
+    default: 1
+    maximum: 4
+    minimum: 1
+    description: Number of machines
+    title: Number of machines
+  environment:
+    type: string
+    enum:
+      - dev
+      - test
+      - prod
+    description: Environment
+    title: Environment
+resources:
+  Cloud_Machine:
+    type: Cloud.Machine
+    metadata:
+      layoutPosition:
+        - 0
+        - 0
+    properties:
+      name: cas
+      flavor: '${input.size}'
+      image: '${input.os}'
+      count: '${input.count}'
+      constraints:
+        - tag: 'environment:${input.environment}'

@@ -1,0 +1,52 @@
+name: AWS Linux
+version: v1
+inputs: {}
+resources:
+  Cloud_Machine_1:
+    type: Cloud.Machine
+    metadata:
+      layoutPosition:
+        - 0
+        - 0
+    properties:
+      name: cas-aws
+      image: AWSlinux
+      flavor: small
+      sshKeyName: <your AWS keypair>
+      cloudConfig: >
+        #cloudconfig
+
+        runcmd:
+
+        - sudo rpm -Uvh
+        https://yum.puppet.com/puppet6/puppet6-release-el-7.noarch.rpm
+
+        - sudo yum install -y puppet-bolt
+
+        - sudo yum install -y pdk
+      constraints:
+        - tag: 'environment:dev'
+      attachedDisks:
+        - source: '${Cloud_Volume_1.id}'
+      networks:
+        - name: '${Cloud_Network_1.name}'
+          assignPublicIpAddress: true
+  Cloud_Volume_1:
+    type: Cloud.Volume
+    metadata:
+      layoutPosition:
+        - 0
+        - 1
+    properties:
+      capacityGb: 5
+  Cloud_Network_1:
+    type: Cloud.Network
+    metadata:
+      layoutPosition:
+        - 1
+        - 0
+    properties:
+      name: cas-aws
+      constraints:
+        - tag: 'networktype:public'
+      networkType: existing

@@ -1,0 +1,46 @@
+name: vSphere with Cloud-init - Ubuntu
+version: v4
+inputs:
+  hostname:
+    type: string
+resources:
+  Linux_VM:
+    type: Cloud.vSphere.Machine
+    metadata:
+      layoutPosition:
+        - 0
+        - 0
+    properties:
+      image: Ubuntu
+      flavor: small
+      folderName: <your vSphere VM folder>
+      cloudConfig: |
+        #cloud-config
+        hostname: ${input.hostname}
+
+        runcmd:
+        - mkdir -p /Boltdir
+        - /usr/bin/git clone https://github.com/ddeswart/bolt-examples /Boltdir
+        - wget https://apt.puppet.com/puppet6-release-xenial.deb
+        - sudo dpkg -i puppet6-release-xenial.deb
+        - sudo apt-get update
+        - sudo apt-get install puppet-bolt
+        - sudo bolt puppetfile install
+        - sudo bolt plan run profiles::nginx_install nodes=localhost
+
+        network:
+          config: disabled
+      networks:
+        - name: '${resource.VM_Network.name}'
+          assignment: dynamic
+  VM_Network:
+    type: Cloud.vSphere.Network
+    metadata:
+      layoutPosition:
+        - 1
+        - 0
+    properties:
+      name: CAS-network
+      networkType: existing
+      constraints:
+        - tag: 'ipam:true'

@@ -1,0 +1,47 @@
+name: CAS demo application
+version: v2
+inputs: {}
+resources:
+  CAS_demo:
+    type: Cloud.vSphere.Machine
+    metadata:
+      layoutPosition:
+        - 0
+        - 0
+    properties:
+      image: Ubuntu
+      flavor: small
+      folderName: <your vSphere VM folder>
+      cloudConfig: |
+        #cloud-config
+
+        runcmd:
+          - apt install nginx -y 
+          - /usr/bin/git clone https://github.com/ddeswart/cas-demo-application /tmp/cas-demo-application
+          - /bin/rm -rf /etc/nginx/conf.d/
+          - /bin/rm -rf /usr/share/nginx/html/
+          - /usr/bin/curl -sL https://deb.nodesource.com/setup_10.x | sudo bash -
+          - /usr/bin/apt install nodejs -y
+          - /usr/bin/npm install -g @angular/cli
+          - cd /tmp/cas-demo-application && /usr/bin/npm install
+          - /usr/bin/ng build --prod
+          - /bin/cp -R /tmp/cas-demo-application/dist/cmbu-demo-application/ /usr/share/nginx/html/
+          - /bin/sed -i "s@root /var/www/html@root /usr/share/nginx/html@" /etc/nginx/sites-available/default
+          - /bin/systemctl restart nginx
+
+        network:
+          config: disabled
+      networks:
+        - name: '${resource.VM_network.name}'
+          assignment: dynamic
+  VM_network:
+    type: Cloud.vSphere.Network
+    metadata:
+      layoutPosition:
+        - 1
+        - 0
+    properties:
+      name: CAS-network
+      networkType: existing
+      constraints:
+        - tag: 'ipam:true'

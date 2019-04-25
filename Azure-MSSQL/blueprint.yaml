@@ -1,5 +1,5 @@
 name: Azure MSSQL server and database
-version: v1
+version: v2
 inputs: {}
 resources:
   Cloud_Service_Azure_SQL_Server_1:

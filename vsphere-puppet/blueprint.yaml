@@ -1,0 +1,65 @@
+name: Puppet on vSphere - CentOS
+version: v1
+inputs:
+  vm_name:
+    type: string
+    minLength: 6
+    maxLength: 12
+    description: VM name prefix
+    title: VM name prexix
+  vm_size:
+    type: string
+    enum:
+      - small
+      - medium
+      - large
+    default: medium
+    description: Size of the VM
+    title: VM size
+  ip_assignment:
+    type: string
+    enum:
+      - static
+      - dynamic
+    default: dynamic
+    description: IP assignment type
+    title: IP assignment
+  pe_role:
+    type: string
+    enum:
+      - linux_base
+      - linux_webserver
+      - wordpress_server
+    default: linux_base
+    description: Puppet role
+    title: Puppet role
+resources:
+  Puppet_Role:
+    type: Cloud.Puppet
+    properties:
+      host: '${resource.CentOS_VM.*}'
+      environment: dev
+      role: 'role::${input.pe_role}'
+      osType: linux
+      account: ddeswart-PE-master
+      username: root
+      useSudo: false
+      password: vRealize.R00t!
+  CentOS_VM:
+    type: Cloud.vSphere.Machine
+    properties:
+      name: '${input.vm_name}'
+      image: ddeswart-CentOS
+      flavor: 'ddeswart-${input.vm_size}'
+      customizationSpec: Linux
+      folderName: CAS machines
+      networks:
+        - name: '${resource.VM_Network.name}'
+          assignment: '${input.ip_assignment}'
+  VM_Network:
+    type: Cloud.vSphere.Network
+    properties:
+      name: ddeswart-CAS-network
+      networkType: existing
+      constraints:
+        - tag: 'ipam:true'

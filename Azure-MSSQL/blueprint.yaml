@@ -1,46 +1,33 @@
-name: Azure MSSQL server and database
-version: v2
+formatVersion: 1
 inputs: {}
 resources:
   Cloud_Service_Azure_SQL_Server_1:
     type: Cloud.Service.Azure.SQL.Server
-    metadata:
-      layoutPosition:
-        - 0
-        - 0
     properties:
       name: vmguru-sqlsrv
       region: West Europe
-      account: <your CAS Azure account>
+      account: ddeswart-Azure
       version: '12.0'
       administrator_login: vmguru
-      resource_group_name: <your Azure resource group>
+      resource_group_name: vmware-cloudlab
       administrator_login_password: VMware12345!
   Cloud_Service_Azure_SQL_Database_1:
     type: Cloud.Service.Azure.SQL.Database
     dependsOn:
       - Cloud_Service_Azure_SQL_Server_1
-    metadata:
-      layoutPosition:
-        - 1
-        - 0
     properties:
       name: vmguru-db1
       region: West Europe
-      account: <your CAS Azure account>
+      account: ddeswart-Azure
       server_name: vmguru-sqlsrv
-      resource_group_name: <your Azure resource group>
+      resource_group_name: vmware-cloudlab
   Cloud_Service_Azure_SQL_Database_2:
     type: Cloud.Service.Azure.SQL.Database
     dependsOn:
       - Cloud_Service_Azure_SQL_Server_1
-    metadata:
-      layoutPosition:
-        - 1
-        - 1
     properties:
       name: vmguru-db2
       region: West Europe
-      account: <your CAS Azure account>
+      account: ddeswart-Azure
       server_name: vmguru-sqlsrv
-      resource_group_name: <your Azure resource group>
+      resource_group_name: vmware-cloudlab

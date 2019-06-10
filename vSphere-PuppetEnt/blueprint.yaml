@@ -1,5 +1,5 @@
-name: Puppet on vSphere - CentOS
-version: v1
+name: Puppet Enterprise on vSphere - CentOS
+version: v2
 inputs:
   vm_name:
     type: string
@@ -36,42 +36,30 @@ inputs:
 resources:
   Puppet_Role:
     type: Cloud.Puppet
-    metadata:
-      layoutPosition:
-        - 0
-        - 0
     properties:
       host: '${resource.CentOS_VM.*}'
       environment: dev
       role: 'role::${input.pe_role}'
       osType: linux
-      account: <your CAS Puppet Enterprise master account>
+      account: ddeswart-PE-master
       username: root
       useSudo: false
-      password: <your root password>
+      password: YOURpassword!
   CentOS_VM:
     type: Cloud.vSphere.Machine
-    metadata:
-      layoutPosition:
-        - 1
-        - 0
     properties:
       name: '${input.vm_name}'
-      image: CentOS
-      flavor: '${input.vm_size}'
+      image: ddeswart-CentOS
+      flavor: 'ddeswart-${input.vm_size}'
       customizationSpec: Linux
-      folderName: <your vSphere VM folder>
+      folderName: CAS machines
       networks:
         - name: '${resource.VM_Network.name}'
           assignment: '${input.ip_assignment}'
   VM_Network:
     type: Cloud.vSphere.Network
-    metadata:
-      layoutPosition:
-        - 2
-        - 0
     properties:
-      name: CAS-network
+      name: ddeswart-CAS-network
       networkType: existing
       constraints:
         - tag: 'ipam:true'

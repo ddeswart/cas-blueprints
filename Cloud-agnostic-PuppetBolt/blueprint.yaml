@@ -1,0 +1,73 @@
+name: Cloud Agnostic blueprint with Cloud-init and Puppet Bolt
+version: v1
+inputs:
+  environment:
+    type: string
+    enum:
+      - dev
+      - test
+      - prod
+    description: The environment where to deploy the VM
+    title: Environment
+  size:
+    type: string
+    enum:
+      - small
+      - medium
+      - large
+    description: The size of the VM
+    title: VM Size
+  hostname:
+    type: string
+  user:
+    type: string
+    title: Username for SSH
+    description: The username you would like to have for SSH connection
+    default: demouser
+  sshkey:
+    type: string
+    encrypted: true
+    title: Enter SSH Key
+    description: The SSH-Key for connectivity
+resources:
+  Linux_VM:
+    type: Cloud.Machine
+    properties:
+      image: ddeswart-Ubuntu
+      flavor: 'ddeswart-${input.size}'
+      constraints:
+        - tag: 'environment:${input.environment}'
+      cloudConfig: |
+        #cloud-config
+        hostname: ${input.hostname}
+
+        users:
+          - name: ${input.user}
+            ssh-authorized-keys:
+              - ${input.sshkey}         
+            sudo: ['ALL=(ALL) NOPASSWD:ALL']
+            groups: sudo
+            shell: /bin/bash
+
+        runcmd:
+        - mkdir -p /Boltdir
+        - /usr/bin/git clone https://github.com/ddeswart/bolt-examples /Boltdir
+        - wget https://apt.puppet.com/puppet6-release-xenial.deb
+        - dpkg -i puppet6-release-xenial.deb
+        - apt-get update -y
+        - apt-get install puppet-bolt -y
+        - bolt puppetfile install
+        - bolt plan run profiles::nginx_install nodes=localhost
+
+        network:
+          config: disabled
+      networks:
+        - name: '${resource.VM_network.name}'
+  VM_network:
+    type: Cloud.Network
+    properties:
+      name: App-network
+      networkType: existing
+      constraints:
+        - tag: 'networktype:public'
+        

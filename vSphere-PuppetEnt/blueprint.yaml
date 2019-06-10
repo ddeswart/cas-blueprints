@@ -44,7 +44,7 @@ resources:
       account: ddeswart-PE-master
       username: root
       useSudo: false
-      password: YOURpassword!
+      password: yourpassword!
   CentOS_VM:
     type: Cloud.vSphere.Machine
     properties:
